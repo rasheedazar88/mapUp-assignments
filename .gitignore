@@ -1,0 +1,18 @@
+# env files with real values
+.env
+.env.local
+*.local
+
+# build output
+tmp/
+backend/bin/
+frontend/dist/
+frontend/node_modules/
+
+# editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
