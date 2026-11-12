@@ -10,13 +10,13 @@ import { BaseMap } from '../components/map/BaseMap'
 import { GeofenceLayer } from '../components/map/GeofenceLayer'
 import { VehicleMarkers } from '../components/map/VehicleMarkers'
 import { useInterval, useRequest } from '../hooks/useRequest'
-import { useAlertStore } from '../store/alertStore'
+import { useAppSelector } from '../store/hooks'
 import { formatDateTime, fromNow } from '../utils/format'
 
 export function DashboardPage() {
   const navigate = useNavigate()
-  const revision = useAlertStore((s) => s.revision)
-  const feed = useAlertStore((s) => s.feed)
+  const revision = useAppSelector((s) => s.alerts.revision)
+  const feed = useAppSelector((s) => s.alerts.feed)
 
   const geofences = useRequest(() => api.listGeofences(), [])
   const fleet = useRequest(() => api.listVehicleLocations(), [])

@@ -13,7 +13,7 @@ import { ClickToPick } from '../components/map/ClickToPick'
 import { GeofenceLayer } from '../components/map/GeofenceLayer'
 import { VehicleMarkers } from '../components/map/VehicleMarkers'
 import { useInterval, useRequest } from '../hooks/useRequest'
-import { useAlertStore } from '../store/alertStore'
+import { useAppSelector } from '../store/hooks'
 import { formatLatLng, interpolate } from '../utils/coords'
 import { formatNs } from '../utils/format'
 
@@ -39,7 +39,7 @@ export function TrackingPage() {
   const [params] = useSearchParams()
   const [vehicleId, setVehicleId] = useState<string | undefined>(params.get('vehicle') ?? undefined)
   const [tab, setTab] = useState('manual')
-  const revision = useAlertStore((s) => s.revision)
+  const revision = useAppSelector((s) => s.alerts.revision)
 
   const geofences = useRequest(() => api.listGeofences(), [])
   const fleet = useRequest(() => api.listVehicleLocations(), [])

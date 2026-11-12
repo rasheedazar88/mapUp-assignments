@@ -6,7 +6,7 @@
  Browser (React SPA on Vercel)                     Docker host
  ┌──────────────────────────────┐   HTTPS/JSON    ┌───────────────────────────────────────────┐
  │ pages → api/endpoints (axios)│ ──────────────► │ net/http ServeMux                          │
- │ Zustand alert store          │                 │   middleware: recover → log → CORS → key   │
+ │ Redux (RTK) alert slice      │                 │   middleware: recover → log → CORS → key   │
  │ useAlertSocket (1 WebSocket) │ ◄────WSS─────── │   handlers (httpapi)                       │
  │ React-Leaflet + Geoman       │                 │        │                │                  │
  └──────────────────────────────┘                 │   store (SQL, pgx)   realtime.Hub ─► clients│
@@ -144,7 +144,7 @@ Verified with `go test -race`: 20 concurrent clients receiving a broadcast, disc
 - **Frontend:**
   - Typed API layer (`src/api/types.ts` mirrors the README).
   - The `useRequest` hook provides loading, error and retry states.
-  - Zustand holds the alert feed and the socket status.
+  - Redux (Redux Toolkit + React Redux) holds the alert feed and the socket status.
   - Pages are lazy-loaded.
   - Ant Design styles go in a CSS layer below Tailwind utilities.
 

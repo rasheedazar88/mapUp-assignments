@@ -4,7 +4,8 @@ import { api } from '../api/endpoints'
 import type { AlertMessage } from '../api/types'
 import { WS_URL } from '../config'
 import { CATEGORIES } from '../constants'
-import { useAlertStore } from '../store/alertStore'
+import { alertReceived, historyLoaded, statusChanged, type SocketStatus } from '../store/alertSlice'
+import { useAppStore } from '../store/hooks'
 import { formatDateTime } from '../utils/format'
 
 const MAX_BACKOFF_MS = 30_000
@@ -21,13 +22,22 @@ function isAlertMessage(x: unknown): x is AlertMessage {
  *   while the connection was down are not lost from the feed.
  * - If the connection drops, it reconnects with exponential backoff
  *   (1s, 2s, 4s … max 30s, plus jitter so many tabs don't reconnect in lockstep).
- * - New alerts are added to the Zustand store and shown as a toast.
+ * - New alerts are dispatched to the Redux store and shown as a toast.
  */
 export function useAlertSocket() {
   const { notification } = App.useApp()
+  const store = useAppStore()
 
   useEffect(() => {
-    const { addLive, mergeHistory, setStatus } = useAlertStore.getState()
+    const { dispatch, getState } = store
+    const setStatus = (s: SocketStatus) => dispatch(statusChanged(s))
+    const mergeHistory = (msgs: AlertMessage[]) => dispatch(historyLoaded(msgs))
+    // Returns false for duplicates (e.g. an alert seen live AND in the reconnect backfill).
+    const addLive = (msg: AlertMessage) => {
+      if (getState().alerts.feed.some((a) => a.event_id === msg.event_id)) return false
+      dispatch(alertReceived(msg))
+      return true
+    }
     let ws: WebSocket | null = null
     let attempt = 0
     let retryTimer: ReturnType<typeof setTimeout> | undefined
@@ -111,5 +121,5 @@ export function useAlertSocket() {
       }
       setStatus('closed')
     }
-  }, [notification])
+  }, [notification, store])
 }

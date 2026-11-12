@@ -1,6 +1,6 @@
 import { ClearOutlined, EnvironmentOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Button, Card, Empty, Segmented, Tag, Typography } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CircleMarker, Tooltip } from 'react-leaflet'
 import { useNavigate } from 'react-router'
 import { api } from '../api/endpoints'
@@ -9,23 +9,27 @@ import { CategoryTag, EventTag, PageHeader } from '../components/common'
 import { BaseMap } from '../components/map/BaseMap'
 import { GeofenceLayer } from '../components/map/GeofenceLayer'
 import { useRequest } from '../hooks/useRequest'
-import { useAlertStore } from '../store/alertStore'
+import { clear as clearFeed, markRead as markReadAction } from '../store/alertSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { formatLatLng } from '../utils/coords'
 import { formatDateTime, fromNow } from '../utils/format'
 
 export function LiveAlertsPage() {
   const navigate = useNavigate()
-  const feed = useAlertStore((s) => s.feed)
-  const status = useAlertStore((s) => s.status)
-  const liveIds = useAlertStore((s) => s.liveIds)
-  const markRead = useAlertStore((s) => s.markRead)
-  const clear = useAlertStore((s) => s.clear)
+  const dispatch = useAppDispatch()
+  const feed = useAppSelector((s) => s.alerts.feed)
+  const status = useAppSelector((s) => s.alerts.status)
+  const liveIds = useAppSelector((s) => s.alerts.liveIds)
+  const markRead = useCallback(() => dispatch(markReadAction()), [dispatch])
+  const clear = useCallback(() => dispatch(clearFeed()), [dispatch])
   const [filter, setFilter] = useState<'all' | 'entry' | 'exit'>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const geofences = useRequest(() => api.listGeofences(), [])
 
   // Being on this page means the user has seen the alerts.
-  useEffect(() => markRead(), [feed.length, markRead])
+  useEffect(() => {
+    markRead()
+  }, [feed.length, markRead])
 
   const items = useMemo(() => feed.filter((a) => filter === 'all' || a.event_type === filter), [feed, filter])
   const selected = items.find((a) => a.event_id === selectedId) ?? items[0]
@@ -92,7 +96,7 @@ export function LiveAlertsPage() {
           ) : (
             <div className="max-h-[calc(100vh-240px)] min-h-[300px] overflow-auto">
               {items.map((a) => (
-                <AlertRow key={a.event_id} alert={a} live={liveIds.has(a.event_id)} active={a.event_id === selected?.event_id} onClick={() => setSelectedId(a.event_id)} />
+                <AlertRow key={a.event_id} alert={a} live={!!liveIds[a.event_id]} active={a.event_id === selected?.event_id} onClick={() => setSelectedId(a.event_id)} />
               ))}
             </div>
           )}

@@ -9,7 +9,7 @@ import { CategoryTag, EventTag, LoadError, PageHeader } from '../components/comm
 import { BaseMap } from '../components/map/BaseMap'
 import { GeofenceLayer } from '../components/map/GeofenceLayer'
 import { useRequest } from '../hooks/useRequest'
-import { useAlertStore } from '../store/alertStore'
+import { useAppSelector } from '../store/hooks'
 import { formatLatLng } from '../utils/coords'
 import { formatDateTime, formatNs } from '../utils/format'
 
@@ -20,7 +20,7 @@ export function ViolationHistoryPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const [mapItem, setMapItem] = useState<Violation | null>(null)
-  const revision = useAlertStore((s) => s.revision)
+  const revision = useAppSelector((s) => s.alerts.revision)
 
   const vehicles = useRequest(() => api.listVehicles(), [])
   const geofences = useRequest(() => api.listGeofences(), [])

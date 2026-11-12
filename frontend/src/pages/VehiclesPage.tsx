@@ -11,7 +11,7 @@ import { GeofenceLayer } from '../components/map/GeofenceLayer'
 import { VehicleMarkers } from '../components/map/VehicleMarkers'
 import { VEHICLE_TYPES } from '../constants'
 import { useInterval, useRequest } from '../hooks/useRequest'
-import { useAlertStore } from '../store/alertStore'
+import { useAppSelector } from '../store/hooks'
 import { formatLatLng } from '../utils/coords'
 import { formatDateTime, formatNs, fromNow } from '../utils/format'
 
@@ -35,7 +35,7 @@ export function VehiclesPage() {
   const [registering, setRegistering] = useState(false)
   const [detailsId, setDetailsId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const revision = useAlertStore((s) => s.revision)
+  const revision = useAppSelector((s) => s.alerts.revision)
 
   const vehicles = useRequest(() => api.listVehicles(), [])
   const live = useRequest(() => api.listVehicleLocations(), [])

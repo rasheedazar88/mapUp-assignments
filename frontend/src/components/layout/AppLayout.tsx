@@ -12,7 +12,8 @@ import {
 import { Badge, Button, Drawer, Grid, Layout, Menu, Spin, Tooltip, Typography } from 'antd'
 import { Suspense, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
-import { useAlertStore, type SocketStatus } from '../../store/alertStore'
+import type { SocketStatus } from '../../store/alertSlice'
+import { useAppSelector } from '../../store/hooks'
 
 const NAV = [
   { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
@@ -51,8 +52,8 @@ export function AppLayout() {
   const screens = Grid.useBreakpoint()
   const isMobile = !screens.lg
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const status = useAlertStore((s) => s.status)
-  const unread = useAlertStore((s) => s.unread)
+  const status = useAppSelector((s) => s.alerts.status)
+  const unread = useAppSelector((s) => s.alerts.unread)
 
   const selected = NAV.find((n) => n.key !== '/' && pathname.startsWith(n.key))?.key ?? '/'
   const title = NAV.find((n) => n.key === selected)?.label
